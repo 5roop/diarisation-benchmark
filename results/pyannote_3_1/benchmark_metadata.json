@@ -1,0 +1,108 @@
+{
+    "model_name": "pyannote/speaker-diarization-3.1",
+    "run_info": {
+        "timestamp": "2026-02-13T16:08:19.473302",
+        "python_version": "3.12.3",
+        "torch_version": "2.10.0+cu130",
+        "system": "Linux",
+        "processor": "aarch64",
+        "device_type": "cuda",
+        "gpu_name": "NVIDIA GB10",
+        "gpu_count": 1,
+        "gpu_total_vram_gb": 119.64,
+        "cuda_version": "13.0"
+    },
+    "timings": {
+        "model_load_time_s": 6.074926376342773,
+        "total_processing_time_s": 1157.649126291275,
+        "total_audio_duration_s": 19127.356984126982,
+        "overall_rtf": 0.060523214328668674,
+        "max_vram_peak_mb": 1629.822265625
+    },
+    "files": [
+        {
+            "filename": "ROG-Dia-GSO-P0005",
+            "audio_duration_s": 1194.1595011337868,
+            "processing_time_s": 65.85372471809387,
+            "rtf": 0.05514650652242811,
+            "peak_vram_mb": 1629.822265625
+        },
+        {
+            "filename": "ROG-Dia-GSO-P0007",
+            "audio_duration_s": 1771.4039002267573,
+            "processing_time_s": 108.29882168769836,
+            "rtf": 0.06113728307464776,
+            "peak_vram_mb": 1629.822265625
+        },
+        {
+            "filename": "ROG-Dia-GSO-P0008",
+            "audio_duration_s": 1380.3798639455783,
+            "processing_time_s": 78.68335938453674,
+            "rtf": 0.057001236717285846,
+            "peak_vram_mb": 1629.822265625
+        },
+        {
+            "filename": "ROG-Dia-GSO-P0009",
+            "audio_duration_s": 1616.2946031746033,
+            "processing_time_s": 95.24260115623474,
+            "rtf": 0.058926510655400596,
+            "peak_vram_mb": 1629.822265625
+        },
+        {
+            "filename": "ROG-Dia-GSO-P0011",
+            "audio_duration_s": 1161.92,
+            "processing_time_s": 63.83827209472656,
+            "rtf": 0.05494205461195827,
+            "peak_vram_mb": 1629.822265625
+        },
+        {
+            "filename": "ROG-Dia-GSO-P0012",
+            "audio_duration_s": 1241.1595011337868,
+            "processing_time_s": 70.05507373809814,
+            "rtf": 0.05644324816762353,
+            "peak_vram_mb": 1629.822265625
+        },
+        {
+            "filename": "ROG-Dia-GSO-P0016",
+            "audio_duration_s": 2030.1607709750567,
+            "processing_time_s": 130.77680587768555,
+            "rtf": 0.06441697019634329,
+            "peak_vram_mb": 1629.822265625
+        },
+        {
+            "filename": "ROG-Dia-GSO-P0018",
+            "audio_duration_s": 1236.926485260771,
+            "processing_time_s": 70.18891406059265,
+            "rtf": 0.05674461247047782,
+            "peak_vram_mb": 1629.822265625
+        },
+        {
+            "filename": "ROG-Dia-GSO-P0019",
+            "audio_duration_s": 2011.2195918367347,
+            "processing_time_s": 128.6011950969696,
+            "rtf": 0.06394189655816017,
+            "peak_vram_mb": 1629.822265625
+        },
+        {
+            "filename": "ROG-Dia-GSO-P0021",
+            "audio_duration_s": 2008.761156462585,
+            "processing_time_s": 131.45554113388062,
+            "rtf": 0.06544110070575684,
+            "peak_vram_mb": 1629.822265625
+        },
+        {
+            "filename": "ROG-Dia-GSO-P0022",
+            "audio_duration_s": 1445.01,
+            "processing_time_s": 85.33786487579346,
+            "rtf": 0.05905693723627758,
+            "peak_vram_mb": 1629.822265625
+        },
+        {
+            "filename": "ROG-Dia-GSO-P0025",
+            "audio_duration_s": 2029.9616099773243,
+            "processing_time_s": 129.31695246696472,
+            "rtf": 0.06370413698040785,
+            "peak_vram_mb": 1629.822265625
+        }
+    ]
+}

@@ -1,0 +1,6 @@
+{
+    "ROG-Dia-GSO-P0016": {
+        "trim_end": 1172.092,
+        "reason": "Zlati standard se zaključi predčasno pri 19:32 (potrdila avtorica). Preostanek posnetka se ignorira pri izračunu metrik."
+    }
+}

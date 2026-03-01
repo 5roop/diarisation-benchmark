@@ -1,0 +1,8 @@
+data/*
+!data/**/.gitkeep
+# reports/*
+!reports/**/.gitkeep
+# results/*
+!results/**/.gitkeep
+!prepare_data.sh
+notes
