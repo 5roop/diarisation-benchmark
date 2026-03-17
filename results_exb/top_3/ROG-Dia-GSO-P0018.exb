@@ -4,7 +4,7 @@
     <meta-information>
       <project-name/>
       <transcription-name/>
-      <referenced-file url="../../data/ROG-Dialog/audio/ROG-Dia-GSO-P0018.wav"/>
+      <referenced-file url="../../../data/ROG-Dialog/audio/ROG-Dia-GSO-P0018.wav"/>
       <ud-meta-information>
         <ud-information attribute-name="TEXT-ID">ROG-Dia-GSO-P0018</ud-information>
         <ud-information attribute-name="SUBCORPUS">ROG-dialog</ud-information>
