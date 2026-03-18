@@ -22,3 +22,86 @@ While all model outputs are to be logged for future evaluation runs, the first i
 - processing speed
 
 We are very open to additional metrics as well.
+
+
+
+# Peter : Running the pipeline through and through
+
+1. Download the data:
+
+`bash prepare_data.sh`
+
+2. Run pyannote:
+    1. Build the docker image:
+
+    ```bash
+    cd models/pyannote
+    docker build -t benchmark-pyannote .
+    cd ../..
+    ```
+
+    2. Run first model:
+
+    ```bash
+    sudo docker run --rm \
+        -v "$(pwd)/data/ROG-Dialog/audio:/data/audio" \
+        -v "$(pwd)/results/pyannote_3_1:/data/output" \
+        -e HOST_UID=$(id -u) \
+        -e HOST_GID=$(id -g) \
+        -e HF_TOKEN="YOURTOKEN" \
+        benchmark-pyannote \
+        --input /data/audio \
+        --output /data/output \
+        --model pyannote/speaker-diarization-3.1
+    ```
+
+    This works, but on GPU2 there is no docker, and on my laptop, there is no GPU.
+
+    Consequently, processing takes ages, with RTF = 2!
+
+
+3. Nemo models:
+   1. Build the docker image:
+
+    ```bash
+    cd models/nemo
+    sudo docker build -t benchmark-nemo .
+    cd ../..
+    ```
+
+    2. Run first model:
+
+    ```bash
+    sudo docker run --rm \
+        -v "$(pwd)/data/ROG-Dialog/audio:/data/audio" \
+        -v "$(pwd)/results/nemo_v2:/data/output" \
+        -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+        -e HOST_UID=$(id -u) \
+        -e HOST_GID=$(id -g) \
+        -e HF_TOKEN="YOURTOKEN" \
+        benchmark-nemo \
+        --input /data/audio \
+        --output /data/output
+    ```
+
+    This runs faster, with RTF of 0.1 cca.
+
+4. Run the eval
+
+```bash
+cd evaluation
+sudo docker build -t benchmark-eval .
+cd ..
+
+sudo docker run --rm \
+  -v "$(pwd)/data/ROG-Dialog:/data/rog" \
+  -v "$(pwd)/results:/data/results" \
+  -v "$(pwd)/reports:/data/reports" \
+  -v "$(pwd)/evaluation/DATASET_ERRATA.json:/app/DATASET_ERRATA.json" \
+  -e HOST_UID=$(id -u) -e HOST_GID=$(id -g) \
+  benchmark-eval \
+  --gold /data/rog/ref_rttm/gold_standard.rttm \
+  --results_dir /data/results \
+  --metadata /data/rog/docs/ROG-Dia-meta-speeches.tsv \
+  --output /data/reports/ROG-Dia_Final_Report
+```
