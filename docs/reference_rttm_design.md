@@ -66,13 +66,20 @@ SPEAKER <file_id> 1 <onset> <duration> <NA> <NA> <speaker_id> <NA> <NA>
 
 To regenerate the gold standard RTTM file:
 
-1. Ensure the data/ROG-Dialog/annotations/trs directory is populated.  
-2. Run the conversion script:
+1. Ensure the data/ROG-Dialog/annotations/trs or data/ROG-Art/annotations/trs directory is populated.  
+2. Run the dataset-specific conversion script:
 
 ```
-
-python convert_trs_to_rttm.py
-
+python rog_dialog_data_process.py --output_filename gold_standard
 ```
 
-3.  The output will be saved to data/ROG-Dialog/ref\_rttm/gold\_standard.rttm.
+or
+
+```
+python rog_art_data_process.py --output_filename gold_standard
+```
+
+3. The output will be saved as:
+   - data/ROG-Dialog/ref_rttm/gold_standard.rttm or
+   - data/ROG-Art/ref_rttm/gold_standard.rttm
+

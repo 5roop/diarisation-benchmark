@@ -1,8 +1,13 @@
+import argparse
 import os
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 # --- KONFIGURACIJA BENCHMARKA ---
+DEFAULT_MERGE_THRESHOLD = 1.0   # Sekunde. Če je tišina < 1.0s, združi.
+DEFAULT_MIN_DURATION = 0.1      # Sekunde. Ignoriraj krajše segmente (šumi/kliki).
+DEFAULT_PRIORITIZE_POG = False
+
 # Logika: Linearno združevanje (Linear Merging)
 # To pomeni, da združujemo segmente istega govorca, če je tišina med njimi manjša od praga,
 # RAZEN če vmes spregovori drug govorec (turn-taking).
@@ -47,7 +52,7 @@ def merge_segments_linear(segments, gap_threshold):
     merged.append(current_seg)
     return merged
 
-def parse_trs_to_rttm(trs_path, output_file):
+def parse_trs_to_rttm(trs_path, output_file, merge_threshold, min_duration):
     try:
         tree = ET.parse(trs_path)
         root = tree.getroot()
@@ -89,14 +94,14 @@ def parse_trs_to_rttm(trs_path, output_file):
                 })
 
     # 2. Uporaba definirane logike glajenja
-    smooth_segments = merge_segments_linear(all_raw_segments, MERGE_THRESHOLD)
+    smooth_segments = merge_segments_linear(all_raw_segments, merge_threshold)
     
     # 3. Zapis
     count = 0
     for seg in smooth_segments:
         duration = seg['end'] - seg['start']
         
-        if duration < MIN_DURATION:
+        if duration < min_duration:
             continue
             
         # RTTM Format: SPEAKER file_id 1 start duration <NA> <NA> name <NA> <NA>
@@ -106,54 +111,82 @@ def parse_trs_to_rttm(trs_path, output_file):
         
     return count
 
-def main():
+def generate_gold_rttm(merge_threshold, min_duration, prioritize_pog, output_filename):
     dataset_name = "ROG-Dialog"
     base_dir = Path(f"data/{dataset_name}")
     trs_dir = base_dir / "annotations" / "trs"
     output_dir = base_dir / "ref_rttm"
-    output_path = output_dir / "gold_standard.rttm"
-    
+
     if not trs_dir.exists():
         print(f"Directory not found: {trs_dir}")
         return
 
     output_dir.mkdir(parents=True, exist_ok=True)
     all_trs = list(trs_dir.glob("*.trs"))
-    
+
     # Grupiranje datotek po ID-ju
     file_groups = {}
     for f in all_trs:
         base_id = f.stem.replace("-std", "").replace("-pog", "")
-        if base_id not in file_groups:
-            file_groups[base_id] = []
-        file_groups[base_id].append(f)
-    
+        file_groups.setdefault(base_id, []).append(f)
+
+    final_name = output_filename if output_filename.endswith(".rttm") else f"{output_filename}.rttm"
+    output_path = output_dir / final_name
+
     total_segments = 0
     with open(output_path, "w", encoding="utf-8") as out_f:
-        # Zapis glave z informacijami o generiranju (komentar v RTTM, če orodja dopuščajo, sicer raje ne)
-        # Večina orodij ignorira vrstice z # ali ;
-        out_f.write(f"; Generated with merge_threshold={MERGE_THRESHOLD}s, min_duration={MIN_DURATION}s, prior_pog={PRIORITIZE_POG}\n")
-        
-        for base_id, files in file_groups.items():
+        out_f.write(f"; Generated with merge_threshold={merge_threshold}s, min_duration={min_duration}s, prior_pog={prioritize_pog}, output_filename={final_name}\n")
+
+        for base_id, files in sorted(file_groups.items()):
             std_files = [f for f in files if "-std" in f.name]
             pog_files = [f for f in files if "-pog" in f.name]
-            
-            selected_file = None
-            
-            if PRIORITIZE_POG:
-                # Najprej POG, če ne obstaja, potem STD
+
+            if prioritize_pog:
                 selected_file = pog_files[0] if pog_files else (std_files[0] if std_files else files[0])
             else:
-                # Najprej STD, če ne obstaja, potem POG (Privzeto)
                 selected_file = std_files[0] if std_files else (pog_files[0] if pog_files else files[0])
-            
+
             print(f"Processing {base_id} using {selected_file.name}...")
-            cnt = parse_trs_to_rttm(selected_file, out_f)
-            total_segments += cnt
-            
+            total_segments += parse_trs_to_rttm(selected_file, out_f, merge_threshold, min_duration)
+
     print(f"Successfully created Gold RTTM at: {output_path}")
-    print(f"Logic: Linear Merge (Threshold: {MERGE_THRESHOLD}s), Source Priority: {'POG' if PRIORITIZE_POG else 'STD'}")
+    print(f"Logic: Linear Merge (Threshold: {merge_threshold}s), Source Priority: {'POG' if prioritize_pog else 'STD'}")
     print(f"Total segments written: {total_segments}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate ROG-Dialog gold RTTM",
+        epilog="Example: python3 rog_dialog_data_process.py --merge_threshold 1.0 --min_duration 0.1 --prioritize_pog false --output_filename myconfig"
+    )
+    parser.add_argument(
+        "--merge_threshold",
+        type=float,
+        default=DEFAULT_MERGE_THRESHOLD,
+        help="(float) Threshold (seconds) for merging adjacent same-speaker segments. Default: %(default)s."
+    )
+    parser.add_argument(
+        "--min_duration",
+        type=float,
+        default=DEFAULT_MIN_DURATION,
+        help="(float) Minimum segment duration (seconds) to keep in RTTM. Default: %(default)s."
+    )
+    parser.add_argument(
+        "--prioritize_pog",
+        type=lambda x: x.lower() in ["1", "true", "yes"],
+        default=DEFAULT_PRIORITIZE_POG,
+        help="(bool) Use .pog transcripts first if available; otherwise use .std. Accepts true/false. Default: %(default)s."
+    )
+    parser.add_argument(
+        "--output_filename",
+        type=str,
+        required=True,
+        help="(string) Output RTTM filename (with or without .rttm extension). Required."
+    )
+    args = parser.parse_args()
+
+    generate_gold_rttm(args.merge_threshold, args.min_duration, args.prioritize_pog, args.output_filename)
+
 
 if __name__ == "__main__":
     main()
