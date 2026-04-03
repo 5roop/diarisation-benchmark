@@ -6,7 +6,7 @@ try:
     out = snakemake.output[0]
 except NameError as e:
     đ.warning(f"Running in standalone mode, reason: {e}")
-    in_exb = "data/ROG-Dialog/annotations/exb/ROG-Dia-GSO-P0018.exb"
+    in_exb = "exb_trimmed/ROG-Dia-GSO-P0018.exb"
     in_rttms = ["results/diar_streaming_sortformer_4spk-v2.1/ROG-Dia-GSO-P0018.rttm"]
     out = "brisi.exb"
 đ.info(f"Got RTTMS: {in_rttms}")
@@ -22,7 +22,7 @@ exb = EXB(in_exb)
 
 # Prune tiers - leave only [colloq] and [norm] tiers:
 for t in exb.get_tier_names():
-    if ("[colloq]" in t) or ("[norm]" in t):
+    if ("[Dia_gold_trim]" in t) or ("[colloq]" in t) or ("[norm]" in t):
         cool_tier = exb.doc.find(f".//tier[@display-name='{t}']")
         continue
     else:

@@ -21,7 +21,7 @@ def get_existing_rttms(wildcards):
 
 rule DoOneWithTop3:
     input:
-        exb="../data/ROG-Dialog/annotations/exb/{exb}.exb",
+        exb="exb_trimmed/{exb}.exb",
         rttms=get_existing_rttms,
     output:
         "top_3/{exb}.exb",
@@ -31,7 +31,7 @@ rule DoOneWithTop3:
 
 rule DoOneByOne:
     input:
-        exb="../data/ROG-Dialog/annotations/exb/{exb}.exb",
+        exb="exb_trimmed/{exb}.exb",
         rttms=["../results/{system}/{exb}.rttm"],
     output:
         "single/{system}/{exb}.exb",
