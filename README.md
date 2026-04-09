@@ -105,3 +105,60 @@ sudo docker run --rm \
   --metadata /data/rog/docs/ROG-Dia-meta-speeches.tsv \
   --output /data/reports/ROG-Dia_Final_Report
 ```
+
+# Ivan: Auto-trim silences from Gold intervals with Praat
+
+Human-annotated segment boundaries in the gold RTTM often include leading/trailing silence (annotators clicking a bit too early or too late). The `trim_gold_silences_rttm.py` module uses Praat's pitch and intensity analysis (via Parselmouth) to detect actual speech onset/offset and tighten those boundaries automatically. It can also split segments at long internal silences.
+
+## What it does
+
+- Loads each audio file and analyses segments using pitch detection + intensity relative to segment peak
+- Trims segment edges to where speech actually starts/ends, with a configurable guard margin
+- Optionally splits segments at internal silences (e.g. ≥500ms gaps within a single annotation)
+- Drops segments that become too short after trimming (configurable threshold)
+- Writes results incrementally per file (crash-safe — no data lost if it fails mid-run)
+
+## Two ways to use it
+
+### 1. Standalone CLI (trim an existing RTTM)
+
+```bash
+python trim_gold_silences_rttm.py \
+    --rttm data/ROG-Dialog/ref_rttm/gold_standard.rttm \
+    --audio-dir data/ROG-Dialog/audio \
+    --output data/ROG-Dialog/ref_rttm/gold_trimmed.rttm \
+    --trim-silence-within \
+    --verbose
+```
+
+Run `python trim_gold_silences_rttm.py --help` for all options (pitch range, intensity threshold, guard margin, max trim, etc.).
+
+### 2. Integrated in the TRS→RTTM pipeline (recommended)
+
+`convert_trs_to_trim_rttm.py` imports the trimming module and runs the full pipeline: parse TRS → merge segments → trim with audio → write RTTM + optional EXB files. All settings are configured at the top of the script:
+
+```python
+ENABLE_TRIMMING = True       # set False to skip audio analysis
+GENERATE_EXB = True          # generate EXB files for visual inspection
+TRIM_PARAMS = TrimParams(
+    intensity_drop_db=15.0,  # dB below segment peak = "silence"
+    trim_silence_within=True,
+    min_silence_dur=0.5,
+    verbose=False,
+    # ... other params with sensible defaults
+)
+```
+
+```bash
+python convert_trs_to_trim_rttm.py
+```
+
+Output filename is automatic: `gold_standard_trimmed_{int}db.rttm` when trimming is on, `gold_standard.rttm` when off. A `_metadata.txt` file with full parameters and statistics is written alongside.
+
+### EXB output
+
+When `GENERATE_EXB = True`, the script produces EXB files with `[Dia_gold_trim]` tiers that can be opened in EXMARaLDA Partitur Editor alongside the original transcription tiers for visual verification of trim quality.
+
+### Note on file_id
+
+TRS filenames (e.g. `ROG-Dia-GSO-P0005-std.trs`) are stripped of `-std`/`-pog` suffixes to derive the file ID (`ROG-Dia-GSO-P0005`). This must match the corresponding `.wav` and `.exb` filenames.
