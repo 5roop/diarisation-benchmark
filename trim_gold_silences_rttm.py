@@ -8,6 +8,8 @@ internal silences.
 
 Can be used standalone (CLI) or imported as a module:
     from trim_gold_silences_rttm import trim_file_segments, DEFAULT_TRIM_PARAMS
+
+Autor: Ivan Porupski (IJS E8), 09Apr2026
 """
 
 import argparse

@@ -1,0 +1,34 @@
+Gold RTTM Trimming Metadata
+Generated: 2026-04-09T11:28:27.290894
+
+=== Parameters ===
+  pitch_floor: 75.0
+  pitch_ceiling: 500.0
+  intensity_drop_db: 15.0
+  guard_ms: 30.0
+  max_trim_s: 1.5
+  min_duration: 0.1
+  pad_s: 0.5
+  time_step: 0.01
+  method: pitch_or_intensity
+  trim_silence_within: True
+  min_silence_dur: 0.5
+  verbose: True
+
+=== Statistics ===
+  Files processed:       12
+  total: 4886
+  trimmed: 4096
+  unchanged: 790
+  no_activity: 0
+  too_short: 0
+  trim_start_total: 659.23785211631
+  trim_end_total: 702.7359166485389
+  silences_split: 1055
+  sub_segments_created: 3506
+  sub_segments_dropped: 0
+  silence_removed_total: 2147.52730518704
+  output_segments: 7337
+  avg_trim_start:        0.161s
+  avg_trim_end:          0.172s
+  total_time_removed:    1361.974s
