@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-04-02
+
+### Added
+
+- **CHILDES Croatian Corpus of Preschool Child Language (CCPCL)**
+  - `prepare_data_ccpcl.sh`: archive presence check, extraction workflow, WAV presence prompt, and optional RTTM generation launch
+  - `ccpcl_data_process.py`: `.cha` parser + linear merge + min duration + RTTM writer
+
+## [0.2.0] - 2026-04-02
+
+### Added
+
+- **ROG-Art dataset support (Training corpus of spoken Slovenian ROG 1.1)**
+  - `prepare_data_rog_art.sh`: download/unzip + reorganize + cleanup workflow
+  - `rog_art_data_process.py`: filtered multi-speaker subset extraction and RTTM generation
+  - multi-speaker selection from `ROG-speeches.tsv` using `SPK-IDsUTTS`
+  - output RTTM naming, merge threshold, min duration, and .pog/.std selection toggles
+
+- **ROG-Dialog pipeline hardening**
+  - `prepare_data_rog_dialog.sh` with dataset existence check and skipped reorganization
+  - `rog_dialog_data_process.py` parameterized, required `--output_filename`, improved help text
+  - shared dataset reorganization + idempotent behavior for repeated runs
+
+- **Docs update**
+  - `docs/reference_rttm_design.md` now references new dataset scripts (`rog_dialog_data_process.py`, `rog_art_data_process.py`) instead of legacy script
+  - minimal commands for reproducing gold RTTM pipeline
+
+### Changed
+
+- changed cleanup to preserve downloaded zip archives (`data/raw/*.zip`) while removing extracted `data/raw/data` directories
+- `rog_art_data_process.py` now checks fallback metadata location in `data/ROG-Art/docs/ROG-speeches.tsv` when source path is missing
+
 ## [0.1.0] - 2026-03-01
 
 ### Added

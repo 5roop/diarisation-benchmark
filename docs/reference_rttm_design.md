@@ -4,13 +4,13 @@ This document describes the methodology, design decisions, and parameters used t
 
 ## **1\. Source Data**
 
-The reference annotations are derived from **Transcriber (.trs)** files provided by the CLARIN.SI repository.
+The reference annotations are derived primarily from **Transcriber (.trs)** files provided by CLARIN.SI (ROG-Dialog/ROG-Art). CCPCL uses **CHAT (.cha)** transcripts from the TalkBank CCPCL corpus.
 
-* **Input Format:** XML-based .trs files.  
-* **Content:** The dataset provides two versions for some recordings:  
-  * \_std (Standardized): grammatically corrected transcription.  
-  * \_pog (Conversational): phonetic transcription including hesitation, false starts, etc.  
-* **Selection Logic:** By default, the converter prioritizes \_std files for cleaner sentence boundaries, falling back to \_pog if \_std is unavailable.
+* **ROG-Dialog / ROG-Art:** XML-based .trs files.  
+  * Metadata: `*.trs` with `*Speaker` and `*Turn` segments.
+  * Selection: default .std preferred over .pog (if both exist).
+* **CCPCL:** CHAT .cha files with time-coded line annotations in the form `*SPEAKER: text start_end` (ms).
+  * Conversion: extract speaker/accounted segments and convert to RTTM with linear merge/min-duration heuristics.
 
 ## **2\. The "Smoothing" Problem**
 
@@ -66,13 +66,27 @@ SPEAKER <file_id> 1 <onset> <duration> <NA> <NA> <speaker_id> <NA> <NA>
 
 To regenerate the gold standard RTTM file:
 
-1. Ensure the data/ROG-Dialog/annotations/trs directory is populated.  
-2. Run the conversion script:
+1. Ensure the data/ROG-Dialog/annotations/trs or data/ROG-Art/annotations/trs directory is populated.  
+2. Run the dataset-specific conversion script:
 
 ```
-
-python convert_trs_to_rttm.py
-
+python rog_dialog_data_process.py --output_filename gold_standard
 ```
 
-3.  The output will be saved to data/ROG-Dialog/ref\_rttm/gold\_standard.rttm.
+or
+
+```
+python rog_art_data_process.py --output_filename gold_standard
+```
+
+3. The output will be saved as:
+   - data/ROG-Dialog/ref_rttm/gold_standard.rttm or
+   - data/ROG-Art/ref_rttm/gold_standard.rttm or
+   - data/CHILDES-CCPCL/ref_rttm/ccpcl_gold_standard.rttm
+
+For CCPCL, use:
+```
+python ccpcl_data_process.py --cha_dir data/raw/CCPCL/CCPCL --output_file data/CHILDES-CCPCL/ref_rttm/ccpcl_gold_standard.rttm
+```
+
+

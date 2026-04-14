@@ -3,25 +3,58 @@ First steps in setting up a diarisation benchmark for Slovenian and related lang
 
 ## Dataset
 
-We will start with the open dataset ROG-Dialog http://hdl.handle.net/11356/2073. The audio is to be taken from the repository, while the rttm format is available in this repository for simplicity (original repository contains XML Exmaralda files that can be investigated if needed, editor is this: https://exmaralda.org/en/).
+We currently support three datasets:
+
+- **ROG-Dialog** (primary benchmark)
+  - official source: http://hdl.handle.net/11356/2073
+  - use `prepare_data_rog_dialog.sh` to download/unpack/reorganize and generate `data/ROG-Dialog/ref_rttm/*.rttm`
+  - converter: `rog_dialog_data_process.py` (merge/min filtering, optional `.pog` vs `.std` selection)
+
+- **ROG Art** (Training corpus of spoken Slovenian ROG 1.1)
+  - official source: https://www.clarin.si/repository/xmlui/handle/11356/2062
+  - use `prepare_data_rog_art.sh` to download/unpack/reorganize and generate `data/ROG-Art/ref_rttm/*.rttm`
+  - converter: `rog_art_data_process.py` (multi-speaker subset from `ROG-speeches.tsv`, merge/min filtering, `.pog`/`.std` preference)
+  - this benchmark uses only multi-speaker recordings as filtered by `SPK-IDsUTTS`
+
+- **CHILDES Croatian Corpus of Preschool Child Language (CCPCL)**
+  - source: requires registration/login via https://talkbank.org/childes/access/Slavic/Croatian/CCPCL.html
+  - download archive manually to `data/raw/CCPCL.zip`, then run `./prepare_data_ccpcl.sh`
+  - `prepare_data_ccpcl.sh` extracts to `data/raw/CCPCL`, validates `.wav` availability and optionally runs `ccpcl_data_process.py`
+  - `ccpcl_data_process.py` reads `data/raw/CCPCL/CCPCL/*.cha`, creates `data/CHILDES-CCPCL/ref_rttm/ccpcl_gold_standard.rttm` with same merge/min merging logic
 
 ## Models
 
-Models to be evaluated in the first iteration are
-- pyannote (legacy 3.1, community-1, precision-2, or any others looking promising) https://huggingface.co/pyannote
-- NVIDIA softformer https://huggingface.co/nvidia/diar_sortformer_4spk-v1
-- NVIDIA NeMo models?
-- SpeechBrain models?
-- any other models identified as promising
-- feel free to spend a few EUR (and bill us for these) on API-based diarisers (precision-2 etc.), if they perform significantly better, we are happy to use these as well for some data
+Explicit supported model names:
+
+- nvidia/diar_sortformer_4spk-v1
+- nvidia/diar_streaming_sortformer_4spk-v2
+- nvidia/diar_streaming_sortformer_4spk-v2.1
+- pyannote/speaker-diarization-3.1
+- pyannote/speaker-diarization-community-1
+- pyannote/speaker-diarization-precision-2
+- Revai/reverb-diarization-v2
+
+These entries are loaded from `results/<model_folder>/benchmark_metadata.json` (the `model_name` property inside each file).
+
+Planned/in development support (WIP):
+
+- BUT-FIT diaryzen-wavlm-large-s80-md: https://huggingface.co/BUT-FIT/diarizen-wavlm-large-s80-md
+
 
 ## Evaluation
 
-While all model outputs are to be logged for future evaluation runs, the first iteration should report
-- diarisation error rate (DER) pyannote.metrics.diarization.DiarizationErrorRate
-- processing speed
+Evaluation is run through the benchmark report generator and uses model outputs versus reference RTTM.
+Check `reports/ROG-Dia_rog-auto-gold-rttm_Report/ROG_Dia_Benchmark_Report.md` for how the current evaluation is done.
 
-We are very open to additional metrics as well.
+The report includes:
+- diarisation error rate (DER), false alarm, missed speech and speaker confusion
+- purity / coverage and per-talk evaluation
+- model-specific latency and real-time factor
+- summarization of all models from configured `results/*/benchmark_metadata.json`
+
+The first iteration uses the existing reference RTTM outputs and computes diarisations with DER as primary metric.
+
+Future metric extensions may include JER, boundary F-score, cluster consistency, and more.
 
 
 
@@ -125,7 +158,7 @@ Trimming the gold standard consistently lowers DER across all models, driven alm
 Example using the best-performing model (pyannote speaker-diarization-precision-2, collar=0.25):
 
 | Metric   | Original Gold | Trimmed Gold |
-|----------|---------------|--------------|
+| -------- | ------------- | ------------ |
 | DER      | 20.25%        | **9.52%**    |
 | Miss     | 17.40%        | **5.78%**    |
 | FA       | **1.26%**     | 2.37%        |
