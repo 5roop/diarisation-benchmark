@@ -100,10 +100,10 @@ sudo docker run --rm \
   -v "$(pwd)/evaluation/DATASET_ERRATA.json:/app/DATASET_ERRATA.json" \
   -e HOST_UID=$(id -u) -e HOST_GID=$(id -g) \
   benchmark-eval \
-  --gold /data/rog/ref_rttm/gold_standard.rttm \
+  --gold /data/rog/ref_rttm/gold_trimmed.rttm \
   --results_dir /data/results \
   --metadata /data/rog/docs/ROG-Dia-meta-speeches.tsv \
-  --output /data/reports/ROG-Dia_Final_Report
+  --output /data/reports/ROG-Dia-Trim
 ```
 
 # Ivan: Auto-trim silences from Gold intervals with Praat (Apr2026)
